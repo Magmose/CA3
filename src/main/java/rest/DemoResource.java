@@ -2,6 +2,7 @@ package rest;
 
 import com.google.gson.Gson;
 import entity.User;
+import fetch.ParallelPinger;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
@@ -10,6 +11,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import utils.PuSelector;
@@ -64,4 +66,12 @@ public class DemoResource {
     String thisuser = securityContext.getUserPrincipal().getName();
     return "{\"msg\": \"Hello to (admin) User: " + thisuser + "\"}";
   }
+  
+    @GET
+    @Path("/swapi/{param}/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getJson(@PathParam("param")String param,@PathParam("id") int id ) throws Exception {
+        String jsonString = ParallelPinger.getJsonFromAllServers(param,id);
+        return jsonString;
+    }
 }
