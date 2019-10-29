@@ -45,38 +45,37 @@ class HTTPFetcher implements Callable<String> {
 
 public class ParallelPinger {
 
-    public static String getJsonFromAllServers(String param,int id) throws Exception {
+    public static String getJsonFromAllServers(String param) throws Exception {
         ExecutorService executor = Executors.newCachedThreadPool();
 
         List<Future<String>> futures = new ArrayList<>();
 
-        for (int i = 1; i <= id; i++) {
-            //PingURL
-            Callable<String> pingUrlCallable = new HTTPFetcher("https://swapi.co/api/" + param + "/" + i);
-            System.out.println("https://swapi.co/api/" + param + "/" + i);
-            Future<String> future = executor.submit(pingUrlCallable);
-            futures.add(future);
-            System.out.println("PING"+i);
-        }
+        Callable<String> pingUrlCallable = new HTTPFetcher(param);
+        System.out.println(param);
+        Future<String> fut = executor.submit(pingUrlCallable);
+        futures.add(fut);
 
+        /* Callable<String> pingUrlCallable = new HTTPFetcher("https://magnusklitmose.com/flights-1.0/api/flight/");
+        Future<String> future = executor.submit(pingUrlCallable);
+        futures.add(future);*/
         List<String> results = new ArrayList();
         for (Future<String> future : futures) {
             String result = future.get(2, TimeUnit.MINUTES);
             results.add(result);
         }
+        System.out.println(results);
         executor.shutdown();
-        String jsonString = "[";
+
+        String jsonString = "";
         for (String r : results) {
-            jsonString += r+",";
+            jsonString += r;
         }
-        String outPut = jsonString.substring(0, jsonString.length() - 1);
-        outPut += "]";
         System.out.println(jsonString);
-        return outPut;
+        return jsonString;
     }
 
     public static void main(String[] args) throws Exception {
-       /* long timeStart = System.nanoTime();
+        /* long timeStart = System.nanoTime();
         List<String> results = getJsonFromAllServers("people");
         String jsonString = "[";
         for (String r : results) {
